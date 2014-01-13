@@ -123,7 +123,14 @@ class FontLoad(object):
 #test = (a(0, im.size[0]), a(0,im.size[1]), a(0, im.size[0]), a(0,im.size[1])) 
 #draw.line(test, fill=128)
 #
+
+#add random dots to im
 #
+#pixeln = int(((im.size[0] * im.size[1]) / 100) * percent)
+#for i in xrange(pixeln):
+# tp = (a(0, im.size[0]), a(0,im.size[1]))
+# draw.point(tp, fill=128)
+
 		
 if __name__=='__main__':
 	font = ImageFont.truetype('fonts/Times_New_Roman.ttf', 32)
