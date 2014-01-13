@@ -98,8 +98,12 @@ class Captcha(object):
 
 class FontLoad(object):
 	
-	def __init__(self, path):
+	def __init__(self, path, rnd=None):
 		self.fonts = []
+		if rnd is None:
+			rnd = random.Random()
+		self.rnd = rnd
+		
 		for f in os.listdir(path):
 			fullpath = os.path.join(path, f)
 			if os.path.isfile(fullpath) and os.path.splitext(f)[1] == '.ttf':
@@ -107,7 +111,7 @@ class FontLoad(object):
 				self.fonts.append(newfont)
 	
 	def randomfont(self):
-		return random.choice(self.fonts)
+		return rnd.choice(self.fonts)
 	
 	def fontlist(self):
 		return self.fonts
