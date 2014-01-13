@@ -24,9 +24,8 @@ class Captcha(object):
 	bg_color = 254
 	color = 0
 
-	def __init__(self, size, font, random=None, **kwargs):
+	def __init__(self, size, random=None, **kwargs):
 		self.size = size
-		self.font = font
 		if random is None:
 			random = Random()
 		self.random = random
@@ -89,26 +88,26 @@ class Captcha(object):
 		return dst_img
 
 
-	def create(self, text):
+	def create(self, text, font):
 		img = Image.new(self.mode, self.size, self.bg_color)
 		draw = ImageDraw.Draw(img)
-		text_size = draw.textsize(text, font=self.font)
+		text_size = draw.textsize(text, font=font)
 		left = int((self.size[0]-text_size[0])/2)
 		top = int((self.size[1]-text_size[1])/2)
-		draw.text((left, top), text, fill=self.color, font=self.font)
+		draw.text((left, top), text, fill=self.color, font=font)
 		return self._wave(img)
 
 
 if __name__=='__main__':
-	font = ImageFont.truetype('Times_New_Roman.ttf', 32)
+	font = ImageFont.truetype('fonts/Times_New_Roman.ttf', 32)
 	get_text = TextGenerator()
-	captcha = Captcha(size=(120, 50), font=font)#, mode='RGB', color='#033')
+	captcha = Captcha(size=(120, 50))#, mode='RGB', color='#033')
 	from time import time
 	start = time()
 	count = 20
 	for i in range(count):
 		text = get_text()
 		print text
-		img = captcha.create(text)
+		img = captcha.create(text, font)
 	print '%.4f' % ((time()-start)/count, )
 	img.save('captcha.png')
