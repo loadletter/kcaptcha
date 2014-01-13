@@ -1,21 +1,20 @@
 # -*- coding: utf-8 -*-
 
-from random import Random
-import string, math, itertools
+import string, math, itertools, random
 from PIL import Image, ImageFont, ImageDraw
 
 
 class TextGenerator(object):
 
-	def __init__(self, letters=string.ascii_lowercase, length=6, random=None):
+	def __init__(self, letters=string.ascii_lowercase, length=6, rnd=None):
 		self.letters = letters
 		self.length = length
-		if random is None:
-			random = Random()
-		self.random = random
+		if rnd is None:
+			rnd = random.Random()
+		self.rnd = rnd
 
 	def __call__(self):
-		return ''.join(self.random.sample(self.letters, self.length))
+		return ''.join(self.rnd.sample(self.letters, self.length))
 
 
 class Captcha(object):
@@ -24,21 +23,21 @@ class Captcha(object):
 	bg_color = 254
 	color = 0
 
-	def __init__(self, size, random=None, **kwargs):
+	def __init__(self, size, rnd=None, **kwargs):
 		self.size = size
-		if random is None:
-			random = Random()
-		self.random = random
+		if rnd is None:
+			rnd = random.Random()
+		self.rnd = rnd
 		self.__dict__.update(kwargs)
 
 	def _period(self):
-		return self.random.uniform(0.075, 0.12)
+		return self.rnd.uniform(0.075, 0.12)
 
 	def _phase(self):
-		return self.random.uniform(0, math.pi)
+		return self.rnd.uniform(0, math.pi)
 
 	def _amplitude(self):
-		return self.random.uniform(3, 3.8)
+		return self.rnd.uniform(3, 3.8)
 
 	def _wave(self, img):
 		dst_img = Image.new(self.mode, img.size, self.bg_color)
