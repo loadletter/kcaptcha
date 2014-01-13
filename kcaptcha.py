@@ -130,7 +130,12 @@ class FontLoad(object):
 #for i in xrange(pixeln):
 # tp = (a(0, im.size[0]), a(0,im.size[1]))
 # draw.point(tp, fill=128)
-
+#
+#alternative but with no percent control
+#>>> black = (0,0,0)
+#>>> white = (255,255,255)
+#>>> data = [random.choice([white, black]) for i in xrange(im.size[0] * im.size[1])]
+#>>> im.putdata(data)
 		
 if __name__=='__main__':
 	font = ImageFont.truetype('fonts/Times_New_Roman.ttf', 32)
