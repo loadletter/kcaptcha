@@ -116,6 +116,14 @@ class FontLoad(object):
 	def fontlist(self):
 		return self.fonts
 		
+#add random lines to im
+#
+#draw = ImageDraw.Draw(im)
+#a = random.randint
+#test = (a(0, im.size[0]), a(0,im.size[1]), a(0, im.size[0]), a(0,im.size[1])) 
+#draw.line(test, fill=128)
+#
+#
 		
 if __name__=='__main__':
 	font = ImageFont.truetype('fonts/Times_New_Roman.ttf', 32)
