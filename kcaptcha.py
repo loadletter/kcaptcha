@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import string, math, itertools, random
+import string, math, itertools, random, os
 from PIL import Image, ImageFont, ImageDraw
 
 
@@ -96,7 +96,23 @@ class Captcha(object):
 		draw.text((left, top), text, fill=self.color, font=font)
 		return self._wave(img)
 
-
+class FontLoad(object):
+	
+	def __init__(self, path):
+		self.fonts = []
+		for f in os.listdir(path):
+			fullpath = os.path.join(path, f)
+			if os.path.isfile(fullpath) and os.path.splitext(f)[1] == '.ttf':
+				newfont = ImageFont.truetype(fullpath, 32)
+				self.fonts.append(newfont)
+	
+	def randomfont(self):
+		return random.choice(self.fonts)
+	
+	def fontlist(self):
+		return self.fonts
+		
+		
 if __name__=='__main__':
 	font = ImageFont.truetype('fonts/Times_New_Roman.ttf', 32)
 	get_text = TextGenerator()
