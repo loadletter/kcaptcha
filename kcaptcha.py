@@ -23,7 +23,7 @@ class Captcha(object):
 	bg_color = 254
 	color = 0
 	
-	linesn = 20
+	linesn = 10
 	linescolor_range = (0, 255)
 	dotspercent = 5
 	dotscolor_range = (0, 255)
@@ -152,5 +152,6 @@ if __name__=='__main__':
 		text = get_text()
 		print text
 		img = captcha.create(text, font)
+		img.save('tmp/captcha%i.png' % i)
 	print '%.4f' % ((time()-start)/count, )
-	img.save('captcha.png')
+	
