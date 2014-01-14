@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 
-import sys, logging, StringIO, time
+import sys, logging, StringIO, time, hashlib
 import psycopg2
 from contextlib import contextmanager
 from kcaptcha import TextGenerator, FontLoad, Captcha
 
-INSERT_IGNORE = '''INSERT INTO captcha (ctext, gendate, cimg)
-SELECT %s, %s, %s
+INSERT_IGNORE = '''INSERT INTO captcha (ctext, gendate, imghash, cimg)
+SELECT %s, %s, %s, %s
 WHERE NOT EXISTS (SELECT 1 FROM captcha WHERE ctext = %s)'''
 
 @contextmanager
@@ -27,13 +27,13 @@ class PsqlCaptcha(object):
 	
 	def __init__(self, dsn, fontdir='fonts/'):
 		try:
-			self.dbconn = psycopg2.pool.ThreadedConnectionPool(1, 2, dsn)
+			self.dbconn = psycopg2.pool.ThreadedConnectionPool(1, 3, dsn)
 		except:
 			logging.error("UNABLE TO CONNECT TO DATABASE, TERMINATING!")
 			sys.exit(1)
 		
 		with getcursor(self.dbconn, "DATABASE CLEANUP") as cur:
-			cur.execute("CREATE TABLE IF NOT EXISTS captcha (ctext VARCHAR(8) PRIMARY KEY, gendate INTEGER, cimg BYTEA)")
+			cur.execute("CREATE TABLE IF NOT EXISTS captcha (ctext VARCHAR(8) PRIMARY KEY, gendate INTEGER, imghash VARCHAR(65), cimg BYTEA)")
 			
 		self.fontdir = fontdir
 	
@@ -51,7 +51,12 @@ class PsqlCaptcha(object):
 			buf = StringIO.StringIO()
 			img = captcha.create(text, rndfont)
 			img.save(buf, format=self.imgformat)
-			new_data = (text, int(time.time()), psycopg2.Binary(buf.getvalue(), text)
+			
+			imgdig = hashlib.sha256()
+			imgdig.update(buf.getvalue())
+			imghash = imgdig.hexdigest()
+			
+			new_data = (text, int(time.time()), imghash, psycopg2.Binary(buf.getvalue()), text)
 			new_captchas.append(new_data)
 			buf.close()
 		
@@ -63,5 +68,18 @@ class PsqlCaptcha(object):
 
 	def getcaptcha(self):
 		with getcursor(self.dbconn, "GET") as cur:
-			cur.execute("SELECT cimg FROM captcha ORDER BY RANDOM() LIMIT 1")
-			
+			cur.execute("SELECT imghash, cimg FROM captcha ORDER BY RANDOM() LIMIT 1")
+			data = cur.fetchone()
+		
+		if not data:
+			logging.error("No captchas in database cache!!!")
+		return data
+		
+	def validate(self, input_text, img_hash):
+		with getcursor(self.dbconn, "VALIDATE") as cur:
+			cur.execute("SELECT ctext FROM captcha WHERE ctext = %s AND imghash = %s")
+			data = cur.fetchone()
+		
+		if not data:
+			return False
+		return True
