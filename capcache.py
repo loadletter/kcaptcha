@@ -27,17 +27,17 @@ class PsqlCaptcha(object):
 	
 	def __init__(self, dsn, fontdir='fonts/'):
 		try:
-			self.dbconn = psycopg2.pool.ThreadedConnectionPool(1, 4, dsn)
+			self.dbconn = psycopg2.pool.ThreadedConnectionPool(1, 2, dsn)
 		except:
 			logging.error("UNABLE TO CONNECT TO DATABASE, TERMINATING!")
 			sys.exit(1)
 		
-		with getcursor(conn, "DATABASE CLEANUP") as cur:
+		with getcursor(self.dbconn, "DATABASE CLEANUP") as cur:
 			cur.execute("CREATE TABLE IF NOT EXISTS captcha (ctext VARCHAR(8) PRIMARY KEY, gendate INTEGER, cimg BYTEA)")
 			
 		self.fontdir = fontdir
 	
-	def fillcache(self, cacheregen=200, cachesize=400)
+	def updatecache(self, cacheregen=200, cachesize=400)
 		get_font = FontLoad(self.fontdir)
 		get_text = TextGenerator()
 		captcha = Captcha(size=(120, 50))
@@ -52,9 +52,16 @@ class PsqlCaptcha(object):
 			img = captcha.create(text, rndfont)
 			img.save(buf, format=self.imgformat)
 			new_data = (text, int(time.time()), psycopg2.Binary(buf.getvalue(), text)
+			new_captchas.append(new_data)
+			buf.close()
 		
-		with getcursor(conn, "INSERT/IGNORE") as cur:
-			cur.executemany(INSERT_IGNORE, data)
+		with getcursor(self.dbconn, "INSERT/IGNORE") as cur:
+			cur.executemany(INSERT_IGNORE, new_captchas)
 		
-		with getcursor(conn, "DATABASE CLEANUP") as cur:
+		with getcursor(self.dbconn, "DATABASE CLEANUP") as cur:
 			cur.execute("DELETE FROM captcha WHERE ctext IN (SELECT ctext FROM captcha ORDER BY gendate DESC OFFSET (%s))", (cachesize,))
+
+	def getcaptcha(self):
+		with getcursor(self.dbconn, "GET") as cur:
+			cur.execute("SELECT cimg FROM captcha ORDER BY RANDOM() LIMIT 1")
+			
