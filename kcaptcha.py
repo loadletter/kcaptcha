@@ -22,7 +22,12 @@ class Captcha(object):
 	mode = 'L'
 	bg_color = 254
 	color = 0
-
+	
+	linesn = 20
+	linescolor_range = (0, 255)
+	dotspercent = 5
+	dotscolor_range = (0, 255)
+	
 	def __init__(self, size, rnd=None, **kwargs):
 		self.size = size
 		if rnd is None:
@@ -86,8 +91,24 @@ class Captcha(object):
 		dst_img.putdata(dst_data)
 		return dst_img
 
+	def _noise(self, img):
+		im = img.copy()
+		draw = ImageDraw.Draw(im)
+		#add random lines
+		for i in xrange(self.linesn):
+			coordinates = (self.rnd.randint(0, im.size[0]), self.rnd.randint(0,im.size[1]),
+							self.rnd.randint(0, im.size[0]), self.rnd.randint(0,im.size[1]))
+			linecolor = self.rnd.randint(self.linescolor_range[0], self.linescolor_range[1])
+			draw.line(coordinates, fill=linecolor)
+		#add random dots
+		pixeln = int(((im.size[0] * im.size[1]) / 100) * self.dotspercent)
+		for i in xrange(pixeln):
+			ptxy = (self.rnd.randint(0, im.size[0]), self.rnd.randint(0,im.size[1]))
+			dotcolor = self.rnd.randint(self.dotscolor_range[0], self.dotscolor_range[1])
+			draw.point(ptxy, fill=dotcolor)
+		return im
 
-	def create(self, text, font):
+	def create_simple(self, text, font):
 		img = Image.new(self.mode, self.size, self.bg_color)
 		draw = ImageDraw.Draw(img)
 		text_size = draw.textsize(text, font=font)
@@ -95,6 +116,10 @@ class Captcha(object):
 		top = int((self.size[1]-text_size[1])/2)
 		draw.text((left, top), text, fill=self.color, font=font)
 		return self._wave(img)
+	
+	def create(self, text, font):
+		simple_img = self.create_simple(text, font)
+		return self._noise(simple_img)
 
 class FontLoad(object):
 	
@@ -115,28 +140,7 @@ class FontLoad(object):
 	
 	def fontlist(self):
 		return self.fonts
-		
-#add random lines to im
-#
-#draw = ImageDraw.Draw(im)
-#a = random.randint
-#test = (a(0, im.size[0]), a(0,im.size[1]), a(0, im.size[0]), a(0,im.size[1])) 
-#draw.line(test, fill=128)
-#
-
-#add random dots to im
-#
-#pixeln = int(((im.size[0] * im.size[1]) / 100) * percent)
-#for i in xrange(pixeln):
-# tp = (a(0, im.size[0]), a(0,im.size[1]))
-# draw.point(tp, fill=128)
-#
-#alternative but with no percent control
-#>>> black = (0,0,0)
-#>>> white = (255,255,255)
-#>>> data = [random.choice([white, black]) for i in xrange(im.size[0] * im.size[1])]
-#>>> im.putdata(data)
-		
+	
 if __name__=='__main__':
 	font = ImageFont.truetype('fonts/Times_New_Roman.ttf', 32)
 	get_text = TextGenerator()
