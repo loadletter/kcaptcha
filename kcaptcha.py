@@ -136,7 +136,7 @@ class FontLoad(object):
 				self.fonts.append(newfont)
 	
 	def randomfont(self):
-		return rnd.choice(self.fonts)
+		return self.rnd.choice(self.fonts)
 	
 	def fontlist(self):
 		return self.fonts

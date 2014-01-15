@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import sys, logging, StringIO, time, hashlib
-import psycopg2
+import psycopg2, psycopg2.pool
 from contextlib import contextmanager
 from kcaptcha import TextGenerator, FontLoad, Captcha
 
@@ -37,13 +37,13 @@ class PsqlCaptcha(object):
 			
 		self.fontdir = fontdir
 	
-	def updatecache(self, cacheregen=200, cachesize=400)
+	def updatecache(self, cacheregen=200, cachesize=400):
 		get_font = FontLoad(self.fontdir)
 		get_text = TextGenerator()
 		captcha = Captcha(size=(120, 50))
 		new_captchas = []
 		
-		for i in range(regen):
+		for i in range(cacheregen):
 			text = get_text()
 			rndfont = get_font.randomfont()
 			print text
