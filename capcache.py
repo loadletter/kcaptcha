@@ -67,6 +67,7 @@ class PsqlCaptcha(object):
 			cur.execute("DELETE FROM captcha WHERE ctext IN (SELECT ctext FROM captcha ORDER BY gendate DESC OFFSET (%s))", (cachesize,))
 
 	def getcaptcha(self):
+		data = None
 		with getcursor(self.dbconn, "GET") as cur:
 			cur.execute("SELECT imghash, cimg FROM captcha ORDER BY RANDOM() LIMIT 1")
 			data = cur.fetchone()
@@ -76,8 +77,9 @@ class PsqlCaptcha(object):
 		return data
 		
 	def validate(self, input_text, img_hash):
+		data = None
 		with getcursor(self.dbconn, "VALIDATE") as cur:
-			cur.execute("SELECT ctext FROM captcha WHERE ctext = %s AND imghash = %s")
+			cur.execute("SELECT ctext FROM captcha WHERE ctext = %s AND imghash = %s", (input_text, img_hash))
 			data = cur.fetchone()
 		
 		if not data:
