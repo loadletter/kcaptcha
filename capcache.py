@@ -25,17 +25,25 @@ def getcursor(conn_pool, query_text):
 class PsqlCaptcha(object):
 	imgformat = 'jpeg'
 	
-	def __init__(self, dsn, fontdir='fonts/'):
-		try:
-			self.dbconn = psycopg2.pool.ThreadedConnectionPool(1, 3, dsn)
-		except:
-			logging.error("UNABLE TO CONNECT TO DATABASE, TERMINATING!")
-			sys.exit(1)
+	def __init__(self, dsn=None, conn_pool=None, fontdir='fonts/'):
 		
-		with getcursor(self.dbconn, "DATABASE CLEANUP") as cur:
-			cur.execute("CREATE TABLE IF NOT EXISTS captcha (ctext VARCHAR(8) PRIMARY KEY, gendate INTEGER, imghash VARCHAR(65), cimg BYTEA)")
-			
+		if dsn == conn_pool == None:
+			raise Exception("No database connection specified")
+		
+		if dsn:
+			try:
+				self.dbconn = psycopg2.pool.ThreadedConnectionPool(1, 3, dsn)
+			except:
+				logging.error("UNABLE TO CONNECT TO DATABASE, TERMINATING!")
+				sys.exit(1)
+		if conn_pool:
+			self.dbconn = conn_pool
+		
 		self.fontdir = fontdir
+	
+	def inittable(self):
+		with getcursor(self.dbconn, "INIT TABLE") as cur:
+			cur.execute("CREATE TABLE IF NOT EXISTS captcha (ctext VARCHAR(8) PRIMARY KEY, gendate INTEGER, imghash VARCHAR(65), cimg BYTEA)")
 	
 	def updatecache(self, cacheregen=200, cachesize=400):
 		get_font = FontLoad(self.fontdir)
