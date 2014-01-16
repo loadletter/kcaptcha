@@ -50,6 +50,7 @@ class PsqlCaptcha(object):
 				if i == 3:
 					logging.error("DATABASE CONNECTION ERROR")
 					raise
+				continue
 			break
 
 	
@@ -84,6 +85,7 @@ class PsqlCaptcha(object):
 				if i == 3:
 					logging.error("DATABASE CONNECTION ERROR")
 					raise
+				continue
 			break
 		
 		for i in range(0, 4):
@@ -94,6 +96,7 @@ class PsqlCaptcha(object):
 				if i == 3:
 					logging.error("DATABASE CONNECTION ERROR")
 					raise
+				continue
 			break
 
 
@@ -108,6 +111,7 @@ class PsqlCaptcha(object):
 				if i == 3:
 					logging.error("DATABASE CONNECTION ERROR")
 					raise
+				continue
 			break
 		
 		if not data:
@@ -126,6 +130,7 @@ class PsqlCaptcha(object):
 				if i == 3:
 					logging.error("DATABASE CONNECTION ERROR")
 					raise
+				continue
 			break
 		
 		if not data:
